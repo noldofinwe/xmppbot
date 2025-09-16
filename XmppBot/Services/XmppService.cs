@@ -29,6 +29,53 @@ namespace XmppBot.Services
     }
     public async Task Connect()
     {
+      CreateXmppClient();
+
+      // subscribe to the Binded session state
+      SubscribeToBindingSession();
+
+      SubscribeToMessages();
+      // connect so the server
+      await _xmppClient.ConnectAsync();
+
+    }
+
+    private void SubscribeToMessages()
+    {
+      _xmppClient
+          .XmppXElementReceived
+          .Where(el => el is XmppDotNet.Xmpp.Base.Message)
+          .Subscribe(async el =>
+          {
+            await ProcessMessage((XmppDotNet.Xmpp.Base.Message)el);
+          });
+    }
+
+    private void SubscribeToBindingSession()
+    {
+      _xmppClient
+          .StateChanged
+          .Where(s => s == SessionState.Binded)
+          .Subscribe(async v =>
+          {
+            // request roster (contact list).
+            // This is optional, but most chat clients do this on startup
+            var roster = await _xmppClient.RequestRosterAsync();
+
+            // send our online presence to the server
+            await _xmppClient.SendPresenceAsync(Show.Chat, "free for chat");
+
+            // send a chat message to user2
+            await _xmppClient.SendChatMessageAsync(_ownerJid, "Printing service started");
+            var result = await _printerService.GetSupportedFormats(_printerUrl);
+            await _xmppClient.SendChatMessageAsync(_ownerJid, "Supported formats");
+            await _xmppClient.SendChatMessageAsync(_ownerJid, result);
+
+          });
+    }
+
+    private void CreateXmppClient()
+    {
       _xmppClient = new XmppClient(
         conf =>
         {
@@ -46,34 +93,6 @@ namespace XmppBot.Services
         Jid = _botJid,
         Password = _botPassword
       };
-
-      // subscribe to the Binded session state
-      _xmppClient
-          .StateChanged
-          .Where(s => s == SessionState.Binded)
-          .Subscribe(async v =>
-          {
-            // request roster (contact list).
-            // This is optional, but most chat clients do this on startup
-            var roster = await _xmppClient.RequestRosterAsync();
-
-            // send our online presence to the server
-            await _xmppClient.SendPresenceAsync(Show.Chat, "free for chat");
-
-            // send a chat message to user2
-            await _xmppClient.SendChatMessageAsync(_ownerJid, "Printing service started");
-          });
-
-      _xmppClient
-          .XmppXElementReceived
-          .Where(el => el is XmppDotNet.Xmpp.Base.Message)
-          .Subscribe(async el =>
-          {
-            await ProcessMessage((XmppDotNet.Xmpp.Base.Message)el);
-          });
-      // connect so the server
-      await _xmppClient.ConnectAsync();
-
     }
 
     private async Task ProcessMessage(Message el)
@@ -84,10 +103,7 @@ namespace XmppBot.Services
       {
         if (el.From.Domain == _xmppClient.Jid.Domain)
         {
-          await _xmppClient.SendChatMessageAsync(el.From, "Printing PDF file");
-          var bytes = await DownloadFileAsync(oob.Url);
-          var result = await Print(bytes);
-          await _xmppClient.SendChatMessageAsync(el.From, result);
+          await PrintFileInMessage(el, oob);
         }
         else
         {
@@ -101,7 +117,13 @@ namespace XmppBot.Services
       }
     }
 
-
+    private async Task PrintFileInMessage(Message el, XmppDotNet.Xmpp.Oob.XOob oob)
+    {
+      await _xmppClient.SendChatMessageAsync(el.From, "Printing PDF file");
+      var bytes = await DownloadFileAsync(oob.Url);
+      var result = await _printerService.SendPrintJobAsync(_printerUrl, bytes);
+      await _xmppClient.SendChatMessageAsync(el.From, result);
+    }
 
     public async Task<byte[]> DownloadFileAsync(string fileUrl)
     {
@@ -109,29 +131,16 @@ namespace XmppBot.Services
       return await httpClient.GetByteArrayAsync(fileUrl);
     }
 
-
-    private async Task<string> Print(byte[] file)
-    {
-
-      var result = await _printerService.SendPrintJobAsync(
-          _printerUrl, // IPP URI of the printer
-          file
-      );
-
-      return result;
-
-    }
-
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-      await _xmppClient.SendChatMessageAsync("michel@bobbin.synology.me", "Stopping Service");
-
+      await _xmppClient.SendChatMessageAsync(_ownerJid, "Stopping Service");
       await base.StopAsync(cancellationToken);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
       await Connect();
+
     }
   }
 }
