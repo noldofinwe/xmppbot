@@ -2,6 +2,6 @@
 {
   public interface IPrinterService
   {
-    Task<bool> SendPrintJobAsync(string printerUri, byte[] filePath);
+    Task<string> SendPrintJobAsync(string printerUri, byte[] filePath);
   }
 }

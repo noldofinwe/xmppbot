@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net.Mail;
-using System.Reactive.Linq;
+﻿using System.Reactive.Linq;
 using XmppDotNet;
 using XmppDotNet.Extensions.Client.Message;
 using XmppDotNet.Extensions.Client.Presence;
@@ -11,10 +9,24 @@ using XmppDotNet.Xmpp.Base;
 
 namespace XmppBot.Services
 {
-  public class XmppService(IPrinterService printerService) : IXmppService
+  public class XmppService : BackgroundService
   {
+    private readonly IPrinterService _printerService;
+    private readonly string _ownerJid;
+    private readonly string _botJid;
+    private readonly string _botPassword;
+    private readonly string _printerUrl;
+    
     private XmppClient _xmppClient;
 
+    public XmppService(IPrinterService printerService)
+    {
+      _printerService = printerService;
+      _ownerJid = Environment.GetEnvironmentVariable("OwnerJid");
+      _botJid = Environment.GetEnvironmentVariable("BotJid");
+      _botPassword = Environment.GetEnvironmentVariable("BotPassword");
+      _printerUrl = Environment.GetEnvironmentVariable("PrinterUrl");
+    }
     public async Task Connect()
     {
       _xmppClient = new XmppClient(
@@ -31,8 +43,8 @@ namespace XmppBot.Services
         }
     )
       {
-        Jid = "test@server",
-        Password = ""
+        Jid = _botJid,
+        Password = _botPassword
       };
 
       // subscribe to the Binded session state
@@ -49,7 +61,7 @@ namespace XmppBot.Services
             await _xmppClient.SendPresenceAsync(Show.Chat, "free for chat");
 
             // send a chat message to user2
-            await _xmppClient.SendChatMessageAsync("test@server", "This is a test");
+            await _xmppClient.SendChatMessageAsync(_ownerJid, "Printing service started");
           });
 
       _xmppClient
@@ -70,9 +82,18 @@ namespace XmppBot.Services
 
       if (oob != null)
       {
-        Console.WriteLine($"Received OOB URL: {oob.Url}");
-        var bytes = await DownloadFileAsync(oob.Url);
-        await Print(bytes); 
+        if (el.From.Domain == _xmppClient.Jid.Domain)
+        {
+          await _xmppClient.SendChatMessageAsync(el.From, "Printing PDF file");
+          var bytes = await DownloadFileAsync(oob.Url);
+          var result = await Print(bytes);
+          await _xmppClient.SendChatMessageAsync(el.From, result);
+        }
+        else
+        {
+          await _xmppClient.SendChatMessageAsync(el.From, "Cannot print from different domain");
+
+        }
       }
       else
       {
@@ -89,16 +110,28 @@ namespace XmppBot.Services
     }
 
 
-    private async Task Print(byte[] file)
+    private async Task<string> Print(byte[] file)
     {
 
-      bool success = await printerService.SendPrintJobAsync(
-          "https://192.168.1.92/ipp/", // IPP URI of the printer
+      var result = await _printerService.SendPrintJobAsync(
+          _printerUrl, // IPP URI of the printer
           file
       );
 
-      Console.WriteLine($"Print job success: {success}");
+      return result;
 
+    }
+
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+      await _xmppClient.SendChatMessageAsync("michel@bobbin.synology.me", "Stopping Service");
+
+      await base.StopAsync(cancellationToken);
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+      await Connect();
     }
   }
 }
