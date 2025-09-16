@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+    <PackageReference Include="SharpIppNext" Version="2.1.2" />
     <PackageReference Include="XmppDotNet" Version="3.2.6" />
     <PackageReference Include="XmppDotNet.Core" Version="3.2.6" />
     <PackageReference Include="XmppDotNet.Extensions" Version="3.2.6" />
