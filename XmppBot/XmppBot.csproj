@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>d0ddaf03-7b40-4e70-aae1-a72bbc25211c</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+    <PackageReference Include="XmppDotNet" Version="3.2.6" />
+    <PackageReference Include="XmppDotNet.Core" Version="3.2.6" />
+    <PackageReference Include="XmppDotNet.Extensions" Version="3.2.6" />
+    <PackageReference Include="XmppDotNet.Srv" Version="3.2.6" />
+    <PackageReference Include="XmppDotNet.Transport.Socket" Version="3.2.6" />
+  </ItemGroup>
+
+</Project>
