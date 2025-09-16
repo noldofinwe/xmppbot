@@ -1,5 +1,9 @@
-Environment variables:
-        "OwnerJid": "<name>@<server>",
-        "BotJid": "<name>@<server>",
-        "BotPassword": "",
-        "PrinterUrl": "ipp://<ip>:631/"
+**Environment variables:**
+
+"OwnerJid": "name@server"
+
+"BotJid": "name@server"
+
+"BotPassword": "password",
+
+"PrinterUrl": "ipp://ip-address:631/"
