@@ -13,11 +13,11 @@ namespace XmppBot.Controllers
       _xmppService = xmppService;
     }
 
-    [HttpGet(Name = "Connect")]
+    [HttpGet(Name = "Connect to XMPP Server")]
     public async  Task<IActionResult> Get()
     {
       await _xmppService.Connect();
-      return Ok("Not implemented");
+      return Ok("Xmpp Started");
     }
   }
 }
