@@ -136,12 +136,12 @@ listen:
     module: ejabberd_http
     tls: true
     request_handlers:
-      /api: mod_http_api
-      /bosh: mod_bosh
-      /captcha: ejabberd_captcha
+   #   /api: mod_http_api
+   #   /bosh: mod_bosh
+   #   /captcha: ejabberd_captcha
       /upload: mod_http_upload
-      /ws: ejabberd_http_ws
-      /register: mod_register_web
+   #  /ws: ejabberd_http_ws
+   #  /register: mod_register_web
   -
     port: 3478
     transport: udp
@@ -330,15 +330,15 @@ modules:
         access_model: whitelist
   mod_push: {}
   mod_push_keepalive: {}
-  mod_register:
-    registration_watchers: [<admin>]
-    captcha_protected: true
-    ## Only accept registration requests from the "trusted"
-    ## network (see access_rules section above).
-    ## Think twice before enabling registration from any
-    ## address. See the Jabber SPAM Manifesto for details:
-    ## https://github.com/ge0rg/jabber-spam-fighting-manifesto
-    ip_access: all
+ # mod_register:
+ #   registration_watchers: [<admin>]
+ #   captcha_protected: true
+ #   ## Only accept registration requests from the "trusted"
+ #   ## network (see access_rules section above).
+ #   ## Think twice before enabling registration from any
+ #   ## address. See the Jabber SPAM Manifesto for details:
+ #   ## https://github.com/ge0rg/jabber-spam-fighting-manifesto
+ #   ip_access: all
   mod_roster:
     versioning: true
   mod_s2s_bidi: {}
