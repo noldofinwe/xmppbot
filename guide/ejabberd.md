@@ -206,42 +206,42 @@ access_rules:
   upload:
     allow: server
 
-api_permissions:
-  "console commands":
-    from: ejabberd_ctl
-    who: all
-    what: "*"
-  "webadmin commands":
-    from: ejabberd_web_admin
-    who: admin
-    what: "*"
-  "adhoc commands":
-    from: mod_adhoc_api
-    who: admin
-    what: "*"
-  "http access":
-    from: mod_http_api
-    who:
-      access:
-        allow:
-          - acl: loopback
-          - acl: admin
-      oauth:
-        scope: "ejabberd:admin"
-        access:
-          allow:
-            - acl: loopback
-            - acl: admin
-    what:
-      - "*"
-      - "!stop"
-      - "!start"
-  "public commands":
-    who:
-      ip: 127.0.0.1/8
-    what:
-      - status
-      - connected_users_number
+#api_permissions:
+#  "console commands":
+#    from: ejabberd_ctl
+#    who: all
+#    what: "*"
+#  "webadmin commands":
+#    from: ejabberd_web_admin
+#    who: admin
+#    what: "*"
+#  "adhoc commands":
+#    from: mod_adhoc_api
+#    who: admin
+#    what: "*"
+#  "http access":
+#    from: mod_http_api
+#    who:
+#      access:
+#        allow:
+#          - acl: loopback
+#          - acl: admin
+#      oauth:
+#        scope: "ejabberd:admin"
+#        access:
+#          allow:
+#            - acl: loopback
+#            - acl: admin
+#    what:
+#      - "*"
+#      - "!stop"
+#      - "!start"
+#  "public commands":
+#    who:
+#      ip: 127.0.0.1/8
+#    what:
+#      - status
+#      - connected_users_number
 
 shaper:
   normal:
