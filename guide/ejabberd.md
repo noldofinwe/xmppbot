@@ -160,11 +160,11 @@ listen:
     turn_min_port: 49152
     turn_max_port: 49159
     turn_ipv4_address: <publicip>
-  -
-    port: 1883
-    ip: "::"
-    module: mod_mqtt
-    backlog: 1000
+#  -
+#    port: 1883
+#    ip: "::"
+#    module: mod_mqtt
+#    backlog: 1000
 auth_method: internal
 
 s2s_use_starttls: required
