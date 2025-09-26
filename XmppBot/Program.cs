@@ -9,6 +9,7 @@ builder.Configuration.AddEnvironmentVariables();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IPrinterService, PrinterService>();
+builder.Services.AddSingleton<IQueueService, QueueService>();
 builder.Services.AddHostedService<XmppService>();
 var app = builder.Build();
 
