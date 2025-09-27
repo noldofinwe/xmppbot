@@ -3,5 +3,6 @@
   public interface IXmppService
   {
     Task Connect();
+    Task SendMessageToOwner(string message);
   }
 }

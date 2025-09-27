@@ -9,14 +9,15 @@ using XmppDotNet.Xmpp.Base;
 
 namespace XmppBot.Services
 {
-  public class XmppService : BackgroundService
+  public class XmppService : BackgroundService, IXmppService
   {
     private readonly IPrinterService _printerService;
     private readonly string _ownerJid;
     private readonly string _botJid;
     private readonly string _botPassword;
     private readonly string _printerUrl;
-
+    private readonly HashSet<string> _whitelist;
+    
     private XmppClient _xmppClient;
 
     public XmppService(IPrinterService printerService)
@@ -26,12 +27,16 @@ namespace XmppBot.Services
       _botJid = Environment.GetEnvironmentVariable("BotJid");
       _botPassword = Environment.GetEnvironmentVariable("BotPassword");
       _printerUrl = Environment.GetEnvironmentVariable("PrinterUrl");
+      var whitelist = Environment.GetEnvironmentVariable("Whitelist");
+      _whitelist = whitelist.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .ToHashSet(StringComparer.OrdinalIgnoreCase); 
+
     }
     public async Task Connect()
     {
       CreateXmppClient();
 
-      // subscribe to the Binded session state
+      // subscribe to the Binded session state1
       SubscribeToBindingSession();
 
       SubscribeToMessages();
@@ -101,7 +106,7 @@ namespace XmppBot.Services
 
       if (oob != null)
       {
-        if (el.From.Domain == _xmppClient.Jid.Domain)
+        if (_whitelist.Contains(el.From.Domain))
         {
           await PrintFileInMessage(el, oob);
         }
@@ -141,6 +146,11 @@ namespace XmppBot.Services
     {
       await Connect();
 
+    }
+
+    public async Task SendMessageToOwner(string message)
+    {
+      await _xmppClient.SendChatMessageAsync(_ownerJid, message);
     }
   }
 }
