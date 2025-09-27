@@ -16,7 +16,7 @@ namespace XmppBot.Services
     private readonly string _botJid;
     private readonly string _botPassword;
     private readonly string _printerUrl;
-    
+
     private XmppClient _xmppClient;
 
     public XmppService(IPrinterService printerService)
@@ -66,10 +66,10 @@ namespace XmppBot.Services
             await _xmppClient.SendPresenceAsync(Show.Chat, "free for chat");
 
             // send a chat message to user2
-            await _xmppClient.SendChatMessageAsync(_ownerJid, "Printing service started");
-            var result = await _printerService.GetSupportedFormats(_printerUrl);
-            await _xmppClient.SendChatMessageAsync(_ownerJid, "Supported formats");
-            await _xmppClient.SendChatMessageAsync(_ownerJid, result);
+            await _xmppClient.SendChatMessageAsync(_ownerJid, "Printer service ready");
+            //var result = await _printerService.GetSupportedFormats(_printerUrl);
+            //await _xmppClient.SendChatMessageAsync(_ownerJid, "Supported formats");
+            //await _xmppClient.SendChatMessageAsync(_ownerJid, result);
 
           });
     }
@@ -119,7 +119,7 @@ namespace XmppBot.Services
 
     private async Task PrintFileInMessage(Message el, XmppDotNet.Xmpp.Oob.XOob oob)
     {
-      await _xmppClient.SendChatMessageAsync(el.From, "Printing PDF file");
+      await _xmppClient.SendChatMessageAsync(el.From, "Printing file");
       var bytes = await DownloadFileAsync(oob.Url);
       var result = await _printerService.SendPrintJobAsync(_printerUrl, bytes);
       await _xmppClient.SendChatMessageAsync(el.From, result);

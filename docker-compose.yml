@@ -1,0 +1,15 @@
+services:
+  xmppbot:
+    image: ${DOCKER_REGISTRY-}xmppbot
+    build:
+      context: .
+      dockerfile: XmppBot/Dockerfile
+    environment:
+      OwnerJid: "michel@bobbin.synology.me"
+      BotJid: "test3@bobbin.synology.me"
+      BotPassword: ""
+      PrinterUrl: "ipp://192.168.1.92/"
+    entrypoint: "/app/Startup.sh"
+    ports:
+       - "8080:8080"
+       - "8081:8081"
